@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "999073656309",
+    "project_id": "tarea-facturas",
+    "storage_bucket": "tarea-facturas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999073656309:android:1ae0a0a1d5776d974904bc",
+        "android_client_info": {
+          "package_name": "com.example.roomv1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmXQrO0VSK22wjQ8WW4wwdvmcXUne2CEU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

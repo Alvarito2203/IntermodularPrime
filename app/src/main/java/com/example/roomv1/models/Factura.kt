@@ -1,4 +1,3 @@
-
 package com.example.roomv1.models
 
 data class Factura(
@@ -8,5 +7,6 @@ data class Factura(
     val receptor: String = "", // Datos del receptor
     val baseImponible: Double = 0.0, // Base imponible
     val iva: Double = 0.0, // IVA aplicado
-    val total: Double = 0.0 // Total con IVA incluido
+    val total: Double = 0.0, // Total con IVA incluido
+    val tipo: String = "emitida" // Puede ser "emitida" o "recibida"
 )

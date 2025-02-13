@@ -1,6 +1,5 @@
 package com.example.roomv1.views
 
-
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.layout.*
@@ -12,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.roomv1.models.Factura
 import com.example.roomv1.viewmodels.FacturasViewModel
@@ -25,12 +23,12 @@ fun FacturaAddView(navController: NavHostController, viewModel: FacturasViewMode
     val emisor = remember { mutableStateOf("") }
     val receptor = remember { mutableStateOf("") }
     val baseImponible = remember { mutableStateOf("") }
+    val tipoFactura = remember { mutableStateOf("emitida") }
     val ivaOptions = listOf("21%", "10%", "4%")
-    var showIvaMenu by remember { mutableStateOf(false) }
     var selectedIva by remember { mutableStateOf(ivaOptions[0]) }
+    var dropdownExpanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-
     val calendar = Calendar.getInstance()
     val datePickerDialog = DatePickerDialog(
         context,
@@ -46,68 +44,47 @@ fun FacturaAddView(navController: NavHostController, viewModel: FacturasViewMode
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Campos para ingresar datos de la factura
-        OutlinedTextField(
-            value = id.value,
-            onValueChange = { id.value = it },
-            label = { Text("ID") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = fecha.value,
-            onValueChange = { fecha.value = it },
-            label = { Text("Fecha") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            trailingIcon = {
-                IconButton(onClick = { datePickerDialog.show() }) {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Seleccionar fecha")
-                }
-            }
-        )
-        OutlinedTextField(
-            value = emisor.value,
-            onValueChange = { emisor.value = it },
-            label = { Text("Emisor") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = receptor.value,
-            onValueChange = { receptor.value = it },
-            label = { Text("Receptor") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = baseImponible.value,
-            onValueChange = { baseImponible.value = it },
-            label = { Text("Base Imponible") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        OutlinedTextField(value = id.value, onValueChange = { id.value = it }, label = { Text("ID") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = fecha.value, onValueChange = { fecha.value = it }, label = { Text("Fecha") }, modifier = Modifier.fillMaxWidth(), readOnly = true, trailingIcon = { IconButton(onClick = { datePickerDialog.show() }) { Icon(Icons.Default.ArrowDropDown, contentDescription = "Seleccionar fecha") } })
+        OutlinedTextField(value = emisor.value, onValueChange = { emisor.value = it }, label = { Text("Emisor") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = receptor.value, onValueChange = { receptor.value = it }, label = { Text("Receptor") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = baseImponible.value, onValueChange = { baseImponible.value = it }, label = { Text("Base Imponible") }, modifier = Modifier.fillMaxWidth())
 
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Row {
+            RadioButton(selected = tipoFactura.value == "emitida", onClick = { tipoFactura.value = "emitida" })
+            Text(text = "Emitida")
+            Spacer(modifier = Modifier.width(16.dp))
+            RadioButton(selected = tipoFactura.value == "recibida", onClick = { tipoFactura.value = "recibida" })
+            Text(text = "Recibida")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Selección de IVA con desplegable funcional
+        Box {
             OutlinedTextField(
                 value = selectedIva,
                 onValueChange = {},
-                label = { Text("IVA") },
-                modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
-                textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
+                label = { Text("IVA") },
                 trailingIcon = {
-                    IconButton(onClick = { showIvaMenu = true }) {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Desplegar")
+                    IconButton(onClick = { dropdownExpanded = !dropdownExpanded }) {
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Seleccionar IVA")
                     }
-                }
+                },
+                modifier = Modifier.fillMaxWidth()
             )
             DropdownMenu(
-                expanded = showIvaMenu,
-                onDismissRequest = { showIvaMenu = false }
+                expanded = dropdownExpanded,
+                onDismissRequest = { dropdownExpanded = false },
+                modifier = Modifier.fillMaxWidth()
             ) {
-                ivaOptions.forEach { ivaOption ->
+                ivaOptions.forEach { iva ->
                     DropdownMenuItem(
-                        text = { Text(ivaOption, fontSize = 14.sp) },
+                        text = { Text(iva) },
                         onClick = {
-                            selectedIva = ivaOption
-                            showIvaMenu = false
+                            selectedIva = iva
+                            dropdownExpanded = false
                         }
                     )
                 }
@@ -116,33 +93,28 @@ fun FacturaAddView(navController: NavHostController, viewModel: FacturasViewMode
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                val base = baseImponible.value.toDoubleOrNull() ?: 0.0
-                val iva = when (selectedIva) {
-                    "21%" -> 0.21
-                    "10%" -> 0.10
-                    "4%" -> 0.04
-                    else -> 0.0
-                }
-                val total = base + (base * iva)
-
-                val factura = Factura(
-                    id = id.value,
-                    fecha = fecha.value,
-                    emisor = emisor.value,
-                    receptor = receptor.value,
-                    baseImponible = base,
-                    iva = iva,
-                    total = total
-                )
-
-                viewModel.agregarFactura(factura)
-                navController.popBackStack()
-                viewModel.obtenerFacturas()
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Button(onClick = {
+            val base = baseImponible.value.toDoubleOrNull() ?: 0.0
+            val iva = when (selectedIva) {
+                "21%" -> 0.21
+                "10%" -> 0.10
+                "4%" -> 0.04
+                else -> 0.0
+            }
+            val total = base + (base * iva)
+            val factura = Factura(
+                id = id.value,
+                fecha = fecha.value,
+                emisor = emisor.value,
+                receptor = receptor.value,
+                baseImponible = base,
+                iva = iva,
+                total = total,
+                tipo = tipoFactura.value
+            )
+            viewModel.agregarFactura(factura)
+            navController.popBackStack()
+        }, modifier = Modifier.fillMaxWidth()) {
             Text("Agregar Factura")
         }
     }

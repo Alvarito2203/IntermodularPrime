@@ -1,4 +1,3 @@
-
 package com.example.roomv1.room
 
 import com.example.roomv1.models.Factura
@@ -8,19 +7,28 @@ import kotlinx.coroutines.tasks.await
 class FacturaDatabaseDao {
 
     private val db = FirebaseFirestore.getInstance()
-    private val facturasCollection = db.collection("facturas")
+    private val facturasEmitidasCollection = db.collection("facturas_emitidas")
+    private val facturasRecibidasCollection = db.collection("facturas_recibidas")
 
     suspend fun agregarFactura(factura: Factura) {
         try {
-            facturasCollection.add(factura).await()
+            if (factura.tipo == "emitida") {
+                facturasEmitidasCollection.add(factura).await()
+            } else {
+                facturasRecibidasCollection.add(factura).await()
+            }
         } catch (e: Exception) {
             throw e
         }
     }
 
-    suspend fun obtenerFacturas(): List<Factura> {
+    suspend fun obtenerFacturas(tipo: String): List<Factura> {
         return try {
-            facturasCollection.get().await().toObjects(Factura::class.java)
+            if (tipo == "emitida") {
+                facturasEmitidasCollection.get().await().toObjects(Factura::class.java)
+            } else {
+                facturasRecibidasCollection.get().await().toObjects(Factura::class.java)
+            }
         } catch (e: Exception) {
             throw e
         }
@@ -28,20 +36,29 @@ class FacturaDatabaseDao {
 
     suspend fun actualizarFactura(factura: Factura) {
         try {
-            val facturaDoc = facturasCollection.whereEqualTo("id", factura.id).get().await().documents.firstOrNull()
-            facturaDoc?.reference?.set(factura)?.await()
+            val collection = if (factura.tipo == "emitida") facturasEmitidasCollection else facturasRecibidasCollection
+            val querySnapshot = collection.whereEqualTo("id", factura.id).get().await()
+
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents[0]
+                collection.document(document.id).set(factura).await()
+            }
         } catch (e: Exception) {
             throw e
         }
     }
 
-    suspend fun borrarFactura(factura: Factura) {
+    suspend fun eliminarFactura(id: String, tipo: String) {
         try {
-            val facturaDoc = facturasCollection.whereEqualTo("id", factura.id).get().await().documents.firstOrNull()
-            facturaDoc?.reference?.delete()?.await()
+            val collection = if (tipo == "emitida") facturasEmitidasCollection else facturasRecibidasCollection
+            val querySnapshot = collection.whereEqualTo("id", id).get().await()
+
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents[0]
+                collection.document(document.id).delete().await()
+            }
         } catch (e: Exception) {
             throw e
         }
     }
 }
-

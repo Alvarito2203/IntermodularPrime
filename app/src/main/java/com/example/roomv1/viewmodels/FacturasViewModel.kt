@@ -16,14 +16,14 @@ class FacturasViewModel(private val dao: FacturaDatabaseDao) : ViewModel() {
         private set
 
     init {
-        obtenerFacturas()
+        obtenerFacturas("emitida")
     }
 
-    fun obtenerFacturas() {
+    fun obtenerFacturas(tipo: String) {
         viewModelScope.launch {
             state = state.copy(isLoading = true)
             try {
-                val facturas = dao.obtenerFacturas()
+                val facturas = dao.obtenerFacturas(tipo)
                 state = state.copy(facturasList = facturas, isLoading = false)
             } catch (e: Exception) {
                 state = state.copy(errorMessage = e.message, isLoading = false)
@@ -35,7 +35,7 @@ class FacturasViewModel(private val dao: FacturaDatabaseDao) : ViewModel() {
         viewModelScope.launch {
             try {
                 dao.agregarFactura(factura)
-                obtenerFacturas()
+                obtenerFacturas(factura.tipo)
             } catch (e: Exception) {
                 state = state.copy(errorMessage = e.message)
             }
@@ -46,18 +46,18 @@ class FacturasViewModel(private val dao: FacturaDatabaseDao) : ViewModel() {
         viewModelScope.launch {
             try {
                 dao.actualizarFactura(factura)
-                obtenerFacturas()
+                obtenerFacturas(factura.tipo)
             } catch (e: Exception) {
                 state = state.copy(errorMessage = e.message)
             }
         }
     }
 
-    fun borrarFactura(factura: Factura) {
+    fun eliminarFactura(id: String, tipo: String) {
         viewModelScope.launch {
             try {
-                dao.borrarFactura(factura)
-                obtenerFacturas()
+                dao.eliminarFactura(id, tipo)
+                obtenerFacturas(tipo)
             } catch (e: Exception) {
                 state = state.copy(errorMessage = e.message)
             }

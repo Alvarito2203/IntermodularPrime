@@ -9,6 +9,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -34,7 +35,10 @@ fun FacturaListView(navController: NavHostController, viewModel: FacturasViewMod
         }
 
         // Botones para seleccionar tipo de factura
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
             Button(onClick = {
                 tipoSeleccionado.value = "emitida"
                 viewModel.obtenerFacturas("emitida")
@@ -85,7 +89,7 @@ fun FacturaItem(factura: Factura, onEditClick: () -> Unit, onDeleteClick: () -> 
             Column {
                 Text(text = "ID: ${factura.id}")
                 Text(text = "Fecha: ${factura.fecha}")
-                Text(text = "Total: €${factura.total}")
+                Text(text = "Total: ${factura.total}€")
             }
             Row {
                 Icon(

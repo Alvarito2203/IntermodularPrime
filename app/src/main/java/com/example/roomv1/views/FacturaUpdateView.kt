@@ -3,11 +3,13 @@ package com.example.roomv1.views
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.roomv1.models.Factura
@@ -23,7 +25,7 @@ fun FacturaUpdateView(navController: NavHostController, viewModel: FacturasViewM
     val receptor = remember { mutableStateOf(factura?.receptor ?: "") }
     val baseImponible = remember { mutableStateOf(factura?.baseImponible?.toString() ?: "") }
     val tipoFactura = remember { mutableStateOf(factura?.tipo ?: "emitida") }
-    val ivaOptions = listOf("21%", "10%", "4%")
+    val ivaOptions = listOf("21%", "10%", "4%", "0%")
     var selectedIva by remember { mutableStateOf(factura?.iva?.times(100)?.toInt().toString() + "%") }
     var dropdownExpanded by remember { mutableStateOf(false) }
 
@@ -40,15 +42,29 @@ fun FacturaUpdateView(navController: NavHostController, viewModel: FacturasViewM
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(text = "Actualizar Factura", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(top = 32.dp, bottom = 16.dp))
+
         OutlinedTextField(value = fecha.value, onValueChange = { fecha.value = it }, label = { Text("Fecha") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = emisor.value, onValueChange = { emisor.value = it }, label = { Text("Emisor") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = receptor.value, onValueChange = { receptor.value = it }, label = { Text("Receptor") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = baseImponible.value, onValueChange = { baseImponible.value = it }, label = { Text("Base Imponible") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = baseImponible.value,
+            onValueChange = { baseImponible.value = it.filter { char -> char.isDigit() || char == '.' } },
+            label = { Text("Base Imponible") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
 
-        Row {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             RadioButton(selected = tipoFactura.value == "emitida", onClick = { tipoFactura.value = "emitida" })
             Text(text = "Emitida")
             Spacer(modifier = Modifier.width(16.dp))
@@ -89,6 +105,7 @@ fun FacturaUpdateView(navController: NavHostController, viewModel: FacturasViewM
                 "21%" -> 0.21
                 "10%" -> 0.10
                 "4%" -> 0.04
+                "0%" -> 0.0
                 else -> 0.0
             }
             val total = base + (base * iva)

@@ -5,9 +5,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import com.example.roomv1.viewmodels.FacturasViewModel
-import com.example.roomv1.views.FacturaAddView
-import com.example.roomv1.views.FacturaListView
-import com.example.roomv1.views.FacturaUpdateView
+import com.example.roomv1.views.*
 
 sealed class AppScreens(val route: String) {
     object FacturaListView : AppScreens("factura_list_view")
@@ -15,11 +13,13 @@ sealed class AppScreens(val route: String) {
     object FacturaUpdateView : AppScreens("factura_update_view/{facturaId}") {
         fun createRoute(facturaId: String) = "factura_update_view/$facturaId"
     }
+    object InicioSesion : AppScreens("login_view")
+    object Registro : AppScreens("register_view")
 }
 
 @Composable
 fun AppNavigation(navController: NavHostController, viewModel: FacturasViewModel) {
-    NavHost(navController = navController, startDestination = AppScreens.FacturaListView.route) {
+    NavHost(navController = navController, startDestination = AppScreens.InicioSesion.route) {
 
         composable(route = AppScreens.FacturaListView.route) {
             FacturaListView(navController = navController, viewModel = viewModel)
@@ -27,6 +27,14 @@ fun AppNavigation(navController: NavHostController, viewModel: FacturasViewModel
 
         composable(route = AppScreens.FacturaAddView.route) {
             FacturaAddView(navController = navController, viewModel = viewModel)
+        }
+
+        composable(route = AppScreens.InicioSesion.route) {
+            InicioSesion(navController = navController)
+        }
+
+        composable(route = AppScreens.Registro.route) {
+            Registro(navController = navController)
         }
 
         composable(

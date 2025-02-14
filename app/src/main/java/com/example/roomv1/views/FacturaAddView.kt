@@ -5,11 +5,13 @@ import android.widget.DatePicker
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -46,7 +48,18 @@ fun FacturaAddView(navController: NavHostController, viewModel: FacturasViewMode
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Agregar Nueva Factura", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(top = 32.dp, bottom = 16.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = "Agregar Nueva Factura", style = MaterialTheme.typography.headlineSmall)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(value = id.value, onValueChange = { id.value = it }, label = { Text("ID") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = fecha.value, onValueChange = { fecha.value = it }, label = { Text("Fecha") }, modifier = Modifier.fillMaxWidth(), readOnly = true, trailingIcon = { IconButton(onClick = { datePickerDialog.show() }) { Icon(Icons.Default.ArrowDropDown, contentDescription = "Seleccionar fecha") } })
@@ -109,29 +122,33 @@ fun FacturaAddView(navController: NavHostController, viewModel: FacturasViewMode
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = {
-            val base = baseImponible.value.toDoubleOrNull() ?: 0.0
-            val iva = when (selectedIva) {
-                "21%" -> 0.21
-                "10%" -> 0.10
-                "4%" -> 0.04
-                "0%" -> 0.0
-                else -> 0.0
-            }
-            val total = base + (base * iva)
-            val factura = Factura(
-                id = id.value,
-                fecha = fecha.value,
-                emisor = emisor.value,
-                receptor = receptor.value,
-                baseImponible = base,
-                iva = iva,
-                total = total,
-                tipo = tipoFactura.value
-            )
-            viewModel.agregarFactura(factura)
-            navController.popBackStack()
-        }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = {
+                val base = baseImponible.value.toDoubleOrNull() ?: 0.0
+                val iva = when (selectedIva) {
+                    "21%" -> 0.21
+                    "10%" -> 0.10
+                    "4%" -> 0.04
+                    "0%" -> 0.0
+                    else -> 0.0
+                }
+                val total = base + (base * iva)
+                val factura = Factura(
+                    id = id.value,
+                    fecha = fecha.value,
+                    emisor = emisor.value,
+                    receptor = receptor.value,
+                    baseImponible = base,
+                    iva = iva,
+                    total = total,
+                    tipo = tipoFactura.value
+                )
+                viewModel.agregarFactura(factura)
+                navController.popBackStack()
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+        ) {
             Text("Agregar Factura")
         }
     }

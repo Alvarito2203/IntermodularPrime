@@ -4,13 +4,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.roomv1.models.Factura
@@ -29,9 +27,10 @@ fun FacturaListView(navController: NavHostController, viewModel: FacturasViewMod
         // Botón para agregar facturas
         Button(
             onClick = { navController.navigate(AppScreens.FacturaAddView.route) },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
         ) {
-            Text(text = "Agregar Factura")
+            Text(text = "Agregar Factura", color = Color.White)
         }
 
         // Botones para seleccionar tipo de factura
@@ -39,20 +38,26 @@ fun FacturaListView(navController: NavHostController, viewModel: FacturasViewMod
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = {
-                tipoSeleccionado.value = "emitida"
-                viewModel.obtenerFacturas("emitida")
-            }) {
-                Text("Facturas Emitidas")
+            Button(
+                onClick = {
+                    tipoSeleccionado.value = "emitida"
+                    viewModel.obtenerFacturas("emitida")
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+            ) {
+                Text("Facturas Emitidas", color = Color.White)
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Button(onClick = {
-                tipoSeleccionado.value = "recibida"
-                viewModel.obtenerFacturas("recibida")
-            }) {
-                Text("Facturas Recibidas")
+            Button(
+                onClick = {
+                    tipoSeleccionado.value = "recibida"
+                    viewModel.obtenerFacturas("recibida")
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+            ) {
+                Text("Facturas Recibidas", color = Color.White)
             }
         }
 
@@ -101,13 +106,15 @@ fun FacturaItem(factura: Factura, onEditClick: () -> Unit, onDeleteClick: () -> 
                         } catch (e: Exception) {
                             println("Error al intentar editar: ${e.message}")
                         }
-                    }
+                    },
+                    tint = Color(0xFF6200EE)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Eliminar",
-                    modifier = Modifier.clickable { onDeleteClick() }
+                    modifier = Modifier.clickable { onDeleteClick() },
+                    tint = Color(0xFF6200EE)
                 )
             }
         }
